@@ -4,13 +4,13 @@ from sklearn.neighbors import NearestNeighbors
 import requests
 import os
 
-# ---------------- GOOGLE DRIVE DOWNLOAD FUNCTION ---------------- #
-def download_file_from_google_drive(file_id, destination):
+
+def download_file_from_google_drive(id, destination):
     URL = "https://drive.google.com/uc?export=download"
-
+    
     session = requests.Session()
-    response = session.get(URL, params={'id': file_id}, stream=True)
-
+    response = session.get(URL, params={'id': id}, stream=True)
+    
     def get_confirm_token(response):
         for key, value in response.cookies.items():
             if key.startswith('download_warning'):
@@ -20,7 +20,7 @@ def download_file_from_google_drive(file_id, destination):
     token = get_confirm_token(response)
 
     if token:
-        params = {'id': file_id, 'confirm': token}
+        params = {'id': id, 'confirm': token}
         response = session.get(URL, params=params, stream=True)
 
     with open(destination, "wb") as f:
@@ -28,9 +28,9 @@ def download_file_from_google_drive(file_id, destination):
             if chunk:
                 f.write(chunk)
 
-# ---------------- DOWNLOAD DATA IF NOT PRESENT ---------------- #
+# Download only if not exists
 if not os.path.exists("movies.pkl"):
-    file_id = "1_qPy35cbwcntbvGvsjaBZ7XTlaNkpTh2"   # your file ID
+    file_id = "1_qPy35cbwcntbvGvsjaBZ7XTlaNkpTh2"
     download_file_from_google_drive(file_id, "movies.pkl")
 
 # ---------------- STREAMLIT UI ---------------- #
